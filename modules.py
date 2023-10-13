@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from diffusers import UNet2DConditionModel
 
 def one_param(m):
     "get model first parameter"
@@ -170,17 +171,4 @@ class UNet(nn.Module):
         return self.unet_forwad(x, t)
 
 
-class UNet_conditional(UNet):
-    def __init__(self, c_in=3, c_out=3, time_dim=256, num_classes=None, **kwargs):
-        super().__init__(c_in, c_out, time_dim, **kwargs)
-        if num_classes is not None:
-            self.label_emb = nn.Embedding(num_classes, time_dim)
-
-    def forward(self, x, t, y=None):
-        t = t.unsqueeze(-1)
-        t = self.pos_encoding(t, self.time_dim)
-
-        if y is not None:
-            t += self.label_emb(y)
-
-        return self.unet_forwad(x, t)
+UNet_conditional = UNet2DConditionModel
