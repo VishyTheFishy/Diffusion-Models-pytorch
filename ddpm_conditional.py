@@ -17,7 +17,7 @@ from fastprogress import progress_bar
 
 import wandb
 from utils import *
-from modules import UNet_conditional, EMA
+from modules import UNet_conditional
 
 
 config = SimpleNamespace(    
@@ -54,8 +54,10 @@ class Diffusion:
         self.alpha_hat = torch.cumprod(self.alpha, dim=0)
 
         self.img_size = img_size
-        self.model = UNet_conditional(c_in, c_out, num_classes=num_classes, **kwargs).to(device)
-        self.ema_model = copy.deepcopy(self.model).eval().requires_grad_(False)
+        self.model = UNet_conditional(
+            sample_size = 32,
+            cross_attention_dim = 320
+        ).to("cuda")
         self.device = device
         self.c_in = c_in
         self.num_classes = num_classes
@@ -75,7 +77,7 @@ class Diffusion:
     
     @torch.inference_mode()
     def sample(self, use_ema, labels, cfg_scale=3):
-        model = self.ema_model if use_ema else self.model
+        model = self.model
         n = len(labels)
         logging.info(f"Sampling {n} new images....")
         model.eval()
@@ -104,7 +106,6 @@ class Diffusion:
         self.scaler.scale(loss).backward()
         self.scaler.step(self.optimizer)
         self.scaler.update()
-        self.ema.step_ema(self.ema_model, self.model)
         self.scheduler.step()
 
     def one_epoch(self, train=True):
@@ -136,19 +137,12 @@ class Diffusion:
         sampled_images = self.sample(use_ema=False, labels=labels)
         wandb.log({"sampled_images":     [wandb.Image(img.permute(1,2,0).squeeze().cpu().numpy()) for img in sampled_images]})
 
-        # EMA model sampling
-        ema_sampled_images = self.sample(use_ema=True, labels=labels)
-        plot_images(sampled_images)  #to display on jupyter if available
-        wandb.log({"ema_sampled_images": [wandb.Image(img.permute(1,2,0).squeeze().cpu().numpy()) for img in ema_sampled_images]})
-
     def load(self, model_cpkt_path, model_ckpt="ckpt.pt", ema_model_ckpt="ema_ckpt.pt"):
         self.model.load_state_dict(torch.load(os.path.join(model_cpkt_path, model_ckpt)))
-        self.ema_model.load_state_dict(torch.load(os.path.join(model_cpkt_path, ema_model_ckpt)))
 
     def save_model(self, run_name, epoch=-1):
         "Save model locally and on wandb"
         torch.save(self.model.state_dict(), os.path.join("models", run_name, f"ckpt.pt"))
-        torch.save(self.ema_model.state_dict(), os.path.join("models", run_name, f"ema_ckpt.pt"))
         torch.save(self.optimizer.state_dict(), os.path.join("models", run_name, f"optim.pt"))
         at = wandb.Artifact("model", type="model", description="Model weights for DDPM conditional", metadata={"epoch": epoch})
         at.add_dir(os.path.join("models", run_name))
@@ -161,7 +155,6 @@ class Diffusion:
         self.scheduler = optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=args.lr, 
                                                  steps_per_epoch=len(self.train_dataloader), epochs=args.epochs)
         self.mse = nn.MSELoss()
-        self.ema = EMA(0.995)
         self.scaler = torch.cuda.amp.GradScaler()
 
     def fit(self, args):
