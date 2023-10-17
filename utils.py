@@ -34,7 +34,7 @@ def untar_data(url, force_download=False, base='./datasets'):
 
 def get_MRI(args):
     get_kaggle_dataset("mri", "masoudnickparvar/brain-tumor-mri-dataset")
-    train_transforms = T.Compose([T.Resize((64,64), T.Grayscale(), T.ToTensor()])
+    train_transforms = T.Compose([T.Resize((64,64)), T.Grayscale(), T.ToTensor()])
     train_dataset = torchvision.datasets.ImageFolder(root="./alphabet/Images/Images/", transform=train_transforms)
     if args.slice_size>1:
         train_dataset = torch.utils.data.Subset(train_dataset, indices=range(0, len(train_dataset), args.slice_size))
