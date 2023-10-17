@@ -50,6 +50,11 @@ def get_cifar(cifar100=False, img_size=64):
     else:
         get_kaggle_dataset("datasets/cifar10_64", "joaopauloschuler/cifar10-64x64-resized-via-cai-super-resolution")
         return Path("datasets/cifar10_64/cifar10-64")
+        
+def get_MRI_path():
+    get_kaggle_dataset("datasets/mri/mri", "masoudnickparvar/brain-tumor-mri-dataset")
+    return Path("datasets/mri/mri")
+
 
 def get_kaggle_dataset(dataset_path, # Local path to download dataset to
                 dataset_slug, # Dataset slug (ie "zillow/zecon")
