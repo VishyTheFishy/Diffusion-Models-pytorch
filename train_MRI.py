@@ -16,7 +16,7 @@ config = SimpleNamespace(
     batch_size = 128,
     img_size = 32,
     num_classes = 10,
-    dataset_path = get_mri(img_size=32),
+    dataset_path = get_MRI(),
     train_folder = "train",
     val_folder = "test",
     device = "cuda",
