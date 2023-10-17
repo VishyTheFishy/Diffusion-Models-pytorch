@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import wandb
 from ddpm_conditional import Diffusion
-from utils import get_cifar
+from utils import get_MRI
 
 
 # Trains a conditional diffusion model on CIFAR10
