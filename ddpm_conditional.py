@@ -165,7 +165,8 @@ class Diffusion:
         self.scaler = torch.cuda.amp.GradScaler()
 
     def fit(self, args):
-        for epoch in progress_bar(range(args.epochs), total=args.epochs, leave=True):
+        for epoch in range(args.epochs):
+            print("epoch:",epoch)
             logging.info(f"Starting epoch {epoch}:")
             _  = self.one_epoch(train=True)
             
