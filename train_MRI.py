@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import wandb
 from ddpm_conditional import Diffusion
-from utils import get_MRI
+from utils import get_MRI_path
 
 
 # Trains a conditional diffusion model on CIFAR10
@@ -16,7 +16,7 @@ config = SimpleNamespace(
     batch_size = 128,
     img_size = 32,
     num_classes = 10,
-    dataset_path = get_MRI(),
+    dataset_path = get_MRI_path(),
     train_folder = "train",
     val_folder = "test",
     device = "cuda",
