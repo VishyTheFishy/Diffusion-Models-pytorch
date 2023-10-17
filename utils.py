@@ -32,9 +32,10 @@ def untar_data(url, force_download=False, base='./datasets'):
     return d.get(url, force=force_download, extract_key='data')
 
 
-def get_alphabet(args):
-    get_kaggle_dataset("alphabet", "thomasqazwsxedc/alphabet-characters-fonts-dataset")
+def get_MRI(args):
+    get_kaggle_dataset("mri", "masoudnickparvar/brain-tumor-mri-dataset")
     train_transforms = T.Compose([
+        T.Resize((64,64)
         T.Grayscale(),
         T.ToTensor(),])
     train_dataset = torchvision.datasets.ImageFolder(root="./alphabet/Images/Images/", transform=train_transforms)
