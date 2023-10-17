@@ -33,15 +33,15 @@ def untar_data(url, force_download=False, base='./datasets'):
 
 
 def get_data(args):
-    get_kaggle_dataset("mri", "masoudnickparvar/brain-tumor-mri-dataset")
+    get_kaggle_dataset("datasets/mri/mri", "masoudnickparvar/brain-tumor-mri-dataset")
     train_transforms = T.Compose([T.Resize((64,64)), T.Grayscale(), T.ToTensor()])
-    train_dataset = torchvision.datasets.ImageFolder(root="./alphabet/Images/Images/", transform=train_transforms)
+    train_dataset = torchvision.datasets.ImageFolder(root="datasets/mri/mri", transform=train_transforms)
     if args.slice_size>1:
         train_dataset = torch.utils.data.Subset(train_dataset, indices=range(0, len(train_dataset), args.slice_size))
     train_dataset, val_dataset = torch.utils.data.random_split(train_dataset, [.9, .1])
     train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
-    return train_dataloader, None
+    return train_dataloader, val_dataloader
 
 def get_cifar(cifar100=False, img_size=64):
     "Download and extract CIFAR"
