@@ -32,13 +32,15 @@ def untar_data(url, force_download=False, base='./datasets'):
     return d.get(url, force=force_download, extract_key='data')
 
 
-def get_MRI(args):
+def get_data(args):
     get_kaggle_dataset("mri", "masoudnickparvar/brain-tumor-mri-dataset")
     train_transforms = T.Compose([T.Resize((64,64)), T.Grayscale(), T.ToTensor()])
     train_dataset = torchvision.datasets.ImageFolder(root="./alphabet/Images/Images/", transform=train_transforms)
     if args.slice_size>1:
         train_dataset = torch.utils.data.Subset(train_dataset, indices=range(0, len(train_dataset), args.slice_size))
+    train_dataset, val_dataset = torch.utils.data.random_split(train_dataset, [.9, .1])
     train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     return train_dataloader, None
 
 def get_cifar(cifar100=False, img_size=64):
@@ -92,7 +94,7 @@ def save_images(images, path, **kwargs):
     im.save(path)
 
 
-def get_data(args):
+def get_data_(args):
     train_transforms = torchvision.transforms.Compose([
         T.Resize(args.img_size + int(.25*args.img_size)),  # args.img_size + 1/4 *args.img_size
         T.RandomResizedCrop(args.img_size, scale=(0.8, 1.0)),
