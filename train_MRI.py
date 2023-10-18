@@ -25,7 +25,7 @@ config = SimpleNamespace(
     fp16 = True,
     log_every_epoch = 10,
     num_workers=10,
-    lr = 5e-3)
+    lr = 5e-4)
 
 diff = Diffusion(noise_steps=config.noise_steps , img_size=config.img_size)
 
