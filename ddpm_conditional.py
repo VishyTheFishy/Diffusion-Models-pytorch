@@ -125,7 +125,6 @@ class Diffusion:
                 self.train_step(loss)
                 wandb.log({"train_mse": loss.item(),
                             "learning_rate": self.scheduler.get_last_lr()[0]})
-            pbar.comment = f"MSE={loss.item():2.3f}"        
         return avg_loss.mean().item()
 
     def log_images(self):
